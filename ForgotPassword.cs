@@ -36,28 +36,23 @@ namespace FitX
                 return;
             }
 
-            if (SendNewPasswordEmail(email))
-            {
-                MessageBox.Show("A new password has been sent to your email.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private bool SendNewPasswordEmail(string email)
-        {
             if (!CheckEmailInDatabase(email))
             {
                 MessageBox.Show("No account found with this email address.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
+                return;
             }
 
-            string newPassword = GenerateRandomPassword();
-
-            if (UpdatePasswordInDatabase(email, newPassword))
+            string resetCode = GenerateResetCode();
+            if (UpdateResetCodeInDatabase(email, resetCode))
             {
-                return SendEmail(email, newPassword);
+                if (SendEmail(email, resetCode))
+                {
+                    MessageBox.Show("A reset code has been sent to your email.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.Hide();
+                    NewPassword newPasswordForm = new NewPassword(email);
+                    newPasswordForm.Show();
+                }
             }
-
-            return false;
         }
 
         private bool CheckEmailInDatabase(string email)
@@ -74,7 +69,7 @@ namespace FitX
                     {
                         command.Parameters.AddWithValue("@Email", email);
                         long count = (long)command.ExecuteScalar();
-                        return count > 0;
+                        return count > 0; // Email exists if count > 0
                     }
                 }
             }
@@ -85,33 +80,29 @@ namespace FitX
             }
         }
 
-        private string GenerateRandomPassword()
+
+        private string GenerateResetCode()
         {
-            const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
             Random random = new Random();
-            char[] password = new char[12];
-            for (int i = 0; i < password.Length; i++)
-            {
-                password[i] = validChars[random.Next(validChars.Length)];
-            }
-            return new string(password);
+            return random.Next(100000, 999999).ToString(); // Generates a 6-digit code
         }
 
-        private bool UpdatePasswordInDatabase(string email, string newPassword)
+        private bool UpdateResetCodeInDatabase(string email, string resetCode)
         {
             try
             {
-                string hashedPassword = HashPassword(newPassword);
+                DateTime expiryTime = DateTime.Now.AddMinutes(15);
                 string connectionString = @"Data Source=C:\Users\royce\Desktop\Visual Studio\FitX\CoreDB.db;Version=3;";
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                 {
                     connection.Open();
 
-                    string query = "UPDATE Users SET Password = @Password WHERE Email = @Email";
+                    string query = "UPDATE Users SET ResetCode = @ResetCode, CodeExpiry = @CodeExpiry WHERE Email = @Email";
                     using (SQLiteCommand command = new SQLiteCommand(query, connection))
                     {
+                        command.Parameters.AddWithValue("@ResetCode", resetCode);
+                        command.Parameters.AddWithValue("@CodeExpiry", expiryTime);
                         command.Parameters.AddWithValue("@Email", email);
-                        command.Parameters.AddWithValue("@Password", hashedPassword);
                         command.ExecuteNonQuery();
                     }
 
@@ -120,12 +111,12 @@ namespace FitX
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error updating password: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error updating reset code: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
 
-        private bool SendEmail(string email, string newPassword)
+        private bool SendEmail(string email, string resetCode)
         {
             try
             {
@@ -139,8 +130,8 @@ namespace FitX
                 var message = new MailMessage
                 {
                     From = new MailAddress("fitx.handler@gmail.com"),
-                    Subject = "Your New Password",
-                    Body = $"Your new password is: {newPassword}\n\nPlease log in and change your password as soon as possible.",
+                    Subject = "Password Reset Code",
+                    Body = $"Your password reset code is: {resetCode}\n\nThis code is valid for 15 minutes.",
                     IsBodyHtml = false,
                 };
 
@@ -154,21 +145,6 @@ namespace FitX
                 MessageBox.Show($"Error sending email: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-        }
-
-        private string HashPassword(string password)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-                byte[] hashBytes = sha256.ComputeHash(passwordBytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            }
-        }
-
-        private void email_Field_TextChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }
