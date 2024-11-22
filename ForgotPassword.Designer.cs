@@ -77,7 +77,7 @@
             email_Label.AutoSize = true;
             email_Label.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             email_Label.ForeColor = Color.White;
-            email_Label.Location = new Point(118, 122);
+            email_Label.Location = new Point(108, 122);
             email_Label.Name = "email_Label";
             email_Label.Size = new Size(51, 20);
             email_Label.TabIndex = 1;
@@ -86,7 +86,7 @@
             // email_Field
             // 
             email_Field.BorderStyle = BorderStyle.None;
-            email_Field.Location = new Point(175, 126);
+            email_Field.Location = new Point(165, 126);
             email_Field.Name = "email_Field";
             email_Field.Size = new Size(212, 16);
             email_Field.TabIndex = 2;
@@ -95,7 +95,7 @@
             // newPasswordBtn
             // 
             newPasswordBtn.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            newPasswordBtn.Location = new Point(168, 258);
+            newPasswordBtn.Location = new Point(165, 257);
             newPasswordBtn.Name = "newPasswordBtn";
             newPasswordBtn.Size = new Size(143, 28);
             newPasswordBtn.TabIndex = 3;
@@ -108,7 +108,7 @@
             newPasswordLabel.AutoSize = true;
             newPasswordLabel.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             newPasswordLabel.ForeColor = Color.White;
-            newPasswordLabel.Location = new Point(89, 167);
+            newPasswordLabel.Location = new Point(79, 167);
             newPasswordLabel.Name = "newPasswordLabel";
             newPasswordLabel.Size = new Size(80, 20);
             newPasswordLabel.TabIndex = 4;
@@ -117,7 +117,7 @@
             // password_Field
             // 
             password_Field.BorderStyle = BorderStyle.None;
-            password_Field.Location = new Point(175, 171);
+            password_Field.Location = new Point(165, 171);
             password_Field.Name = "password_Field";
             password_Field.Size = new Size(212, 16);
             password_Field.TabIndex = 5;
