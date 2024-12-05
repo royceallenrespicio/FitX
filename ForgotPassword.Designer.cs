@@ -84,7 +84,7 @@
             // email_Field
             // 
             email_Field.BorderStyle = BorderStyle.None;
-            email_Field.Location = new Point(165, 126);
+            email_Field.Location = new Point(159, 126);
             email_Field.Name = "email_Field";
             email_Field.Size = new Size(212, 16);
             email_Field.TabIndex = 2;
